@@ -7,12 +7,6 @@
 #include "SDL.h"
 #include "SDL_image.h"
 
-enum class Direction
-{
-	Left,
-	Right
-};
-
 class GameObject
 {
 public:

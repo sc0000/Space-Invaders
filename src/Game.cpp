@@ -29,9 +29,9 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 
 		// panel = std::make_unique<Panel>(renderer, "Assets/Sprites/Title.png", width, height, 512, 256);
 
-		/*controller = std::make_unique<Controller>(leftPaddle.get(), rightPaddle.get());
+		controller = std::make_unique<Controller>(player.get());
 
-		audio = std::make_unique<Audio>(audioTriggerQueue.get());*/
+		// audio = std::make_unique<Audio>(audioTriggerQueue.get());
 	}
 
 	else
@@ -55,7 +55,7 @@ void Game::run()
 	//audio->playSound("Assets/Audio/Panel.wav", 2000);
 
 	//// start controller and ball
-	//threads.emplace_back(std::thread(&Controller::getInputs, std::ref(*controller)));
+	threads.emplace_back(std::thread(&Controller::getInputs, std::ref(*controller)));
 	//threads.emplace_back(std::thread(&Ball::move, std::ref(*ball)));
 
 	while (isRunning)
@@ -90,8 +90,8 @@ void Game::run()
 		}
 	}
 
-	/*for (auto& t : threads)
-		t.join();*/
+	for (auto& t : threads)
+		t.join();
 
 	cleanup();
 }

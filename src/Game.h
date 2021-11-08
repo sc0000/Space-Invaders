@@ -7,6 +7,7 @@
 #include "SDL.h"
 
 #include "Player.h"
+#include "Controller.h"
 
 class Game
 {
@@ -33,7 +34,7 @@ private:
 
 	// PanelPtr panel;
 
-	// ControllerPtr controller;
+	ControllerPtr controller;
 
 	// AudioPtr audio;
 
