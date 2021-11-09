@@ -7,6 +7,15 @@
 #include "SDL.h"
 #include "SDL_image.h"
 
+enum class Direction
+{
+	Left,
+	Right,
+	Up,
+	Down,
+	Stop
+};
+
 class GameObject
 {
 public:
@@ -16,7 +25,9 @@ public:
 	virtual void render();
 	virtual void move() {}
 
+	SDL_Renderer* getRenderer() { return renderer; }
 	int getVelocity() { return velocity; }
+	void setVelocity(int vel) { velocity = vel; }
 	std::vector<int> getWindowSize() { return { windowWidth, windowHeight }; }
 
 	SDL_Rect dstRect;

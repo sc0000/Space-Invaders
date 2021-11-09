@@ -23,13 +23,15 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 
 		isRunning = true;
 
-		player = std::make_unique<Player>("Assets/monochrome.png", 510, 101, renderer, width, height, 36, 36, 8);
-
 		// audioTriggerQueue = std::make_unique<MessageQueue<AudioTrigger>>();
+		shootingTriggerQueue = std::make_unique<MessageQueue<ShootingTrigger>>();
 
 		// panel = std::make_unique<Panel>(renderer, "Assets/Sprites/Title.png", width, height, 512, 256);
 
-		controller = std::make_unique<Controller>(player.get());
+		player = std::make_unique<Player>("Assets/monochrome.png", 510, 101, 
+			shootingTriggerQueue.get(), renderer, width, height, 36, 36, 8);
+
+		controller = std::make_unique<Controller>(player.get(), shootingTriggerQueue.get());
 
 		// audio = std::make_unique<Audio>(audioTriggerQueue.get());
 	}
@@ -56,6 +58,7 @@ void Game::run()
 
 	//// start controller and ball
 	threads.emplace_back(std::thread(&Controller::getInputs, std::ref(*controller)));
+	threads.emplace_back(std::thread(&Player::shoot, std::ref(*player)));
 	//threads.emplace_back(std::thread(&Ball::move, std::ref(*ball)));
 
 	while (isRunning)

@@ -6,6 +6,7 @@
 
 #include "SDL.h"
 
+#include "MessageQueue.h"
 #include "Player.h"
 #include "Controller.h"
 
@@ -28,7 +29,8 @@ private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 
-	// std::unique_ptr<MessageQueue<AudioTrigger>> audioTriggerQueue;
+	std::unique_ptr<MessageQueue<AudioTrigger>> audioTriggerQueue;
+	std::unique_ptr<MessageQueue<ShootingTrigger>> shootingTriggerQueue;
 
 	PlayerPtr player;
 

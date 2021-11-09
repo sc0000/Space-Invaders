@@ -5,9 +5,11 @@
 
 #include "Controller.h"
 
-Controller::Controller(Player* p)
+Controller::Controller(Player* p, MessageQueue<ShootingTrigger>* sT)
 	: player(p)
-{}
+{
+	shootingTriggerQueue = sT;
+}
 
 void Controller::getInputs()
 {
@@ -29,6 +31,12 @@ void Controller::getInputs()
 
 		else
 			player->setDirection(Direction::Stop);
+
+		if (state[SDL_SCANCODE_SPACE])
+			shootingTriggerQueue->send(ShootingTrigger::Shoot);
+
+		else
+			shootingTriggerQueue->send(ShootingTrigger::DontShoot);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}

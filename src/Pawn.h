@@ -1,9 +1,11 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 #include <mutex>
 
 #include "GameObject.h"
+#include "Projectile.h"
 
 class Pawn :
     public GameObject
@@ -15,12 +17,15 @@ public:
     void loadTexture(const char* file);
 
     // void shoot();
+    void addProjectile(Direction dir);
+    void moveProjectiles();
 
     SDL_Rect srcRect;
 
 private:
     SDL_Renderer* renderer;
     SDL_Texture* texture = nullptr;
+    std::vector<ProjectilePtr> projectiles;
 
     std::mutex mtx;
 };

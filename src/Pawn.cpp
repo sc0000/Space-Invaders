@@ -15,6 +15,8 @@ void Pawn::render()
 {
 	std::lock_guard<std::mutex> lck(mtx);
 	SDL_RenderCopy(renderer, texture, &srcRect, &dstRect);
+	for (int i = 0; i < projectiles.size(); ++i)
+		projectiles[i]->render();
 }
 
 void Pawn::loadTexture(const char* file)
@@ -23,4 +25,17 @@ void Pawn::loadTexture(const char* file)
 	SDL_Surface* tempSurface = IMG_Load(file);
 	texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
 	SDL_FreeSurface(tempSurface);
+}
+
+void Pawn::addProjectile(Direction dir)
+{
+	std::lock_guard<std::mutex> lck(mtx);
+	projectiles.emplace_back(std::make_unique<Projectile>(dstRect, dir, getRenderer(), 2, 2, 10));
+}
+
+void Pawn::moveProjectiles()
+{
+	std::lock_guard<std::mutex> lck(mtx);
+	for (int i = 0; i < projectiles.size(); ++i)
+		projectiles[i]->move();
 }

@@ -5,11 +5,12 @@
 #include "SDL.h"
 
 #include "Player.h"
+#include "MessageQueue.h"
 
 class Controller
 {
 public:
-	Controller(Player* p);
+	Controller(Player* p, MessageQueue<ShootingTrigger>* sT);
 
 	void getInputs();
 
@@ -17,6 +18,7 @@ public:
 
 private:
 	Player* player;
+	MessageQueue<ShootingTrigger>* shootingTriggerQueue;
 
 	bool isRunning = true;
 };
