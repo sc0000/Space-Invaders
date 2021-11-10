@@ -42,7 +42,7 @@ enum AudioTrigger
 	NoAudio
 };
 
-enum ShootingTrigger
+enum class ShootingTrigger
 {
 	Shoot,
 	DontShoot

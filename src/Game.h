@@ -8,6 +8,7 @@
 
 #include "MessageQueue.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Controller.h"
 
 class Game
@@ -16,12 +17,14 @@ public:
 	Game(const char* title, int xPos, int yPos, int width, int height, bool fullScreen);
 
 	void run();
+
+private:
 	void handleEvents();
 	void update();
 	void render();
 	void cleanup();
 
-	SDL_Renderer* getRenderer() { return renderer; }
+	void initEnemies(int rows, int columns, int winW, int winH, int vel);
 
 	// void addGameObject(GameObject* gO) { gameObjects.emplace_back(gO); }
 
@@ -40,9 +43,8 @@ private:
 
 	// AudioPtr audio;
 
-	
-
 	// std::vector<GameObject*> gameObjects;
+	std::vector<EnemyPtr> enemies;
 
 	std::vector<std::thread> threads;
 

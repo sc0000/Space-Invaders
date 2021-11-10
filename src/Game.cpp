@@ -28,8 +28,9 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 
 		// panel = std::make_unique<Panel>(renderer, "Assets/Sprites/Title.png", width, height, 512, 256);
 
-		player = std::make_unique<Player>("Assets/monochrome.png", 510, 101, 
-			shootingTriggerQueue.get(), renderer, width, height, 36, 36, 8);
+		player = std::make_unique<Player>(renderer, 510, 102, width, height, 36, 36, 8, shootingTriggerQueue.get());
+
+		initEnemies(4, 12, width, height, 1);
 
 		controller = std::make_unique<Controller>(player.get(), shootingTriggerQueue.get());
 
@@ -56,10 +57,16 @@ void Game::run()
 	//
 	//audio->playSound("Assets/Audio/Panel.wav", 2000);
 
-	//// start controller and ball
+	//// start controller and shooting threads
 	threads.emplace_back(std::thread(&Controller::getInputs, std::ref(*controller)));
 	threads.emplace_back(std::thread(&Player::shoot, std::ref(*player)));
-	//threads.emplace_back(std::thread(&Ball::move, std::ref(*ball)));
+
+	for (auto& e : enemies)
+	{
+		threads.emplace_back(std::thread(&Enemy::shoot, std::ref(*e)));
+		/*e->setEnemies(enemies);
+		e->setShooting();*/
+	}
 
 	while (isRunning)
 	{
@@ -74,27 +81,30 @@ void Game::run()
 		if (frameDelay > frameTime)
 			SDL_Delay(frameDelay - frameTime);
 
-		if (!isRunning /*end game condition*/)
-		{
-			render();
+		//if (!isRunning /*end game condition*/)
+		//{
+		//	render();
 
-			/*panel->loadTexture("Assets/Sprites/END_PANEL.png");
-			panel->render();*/
-			SDL_RenderPresent(renderer);
+		//	/*panel->loadTexture("Assets/Sprites/END_PANEL.png");
+		//	panel->render();*/
+		//	SDL_RenderPresent(renderer);
 
-			/*audio->stop();
-			controller->stop();*/
+		//	/*audio->stop();
+		//	controller->stop();*/
 
-			// audio->playSound("Assets/Audio/Panel.wav", 2000);
+		//	// audio->playSound("Assets/Audio/Panel.wav", 2000);
 
-			isRunning = false;
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-		}
+		//	std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+		//}
 	}
 
 	for (auto& t : threads)
 		t.join();
+
+	player->stop();
+	for (auto& e : enemies)
+		e->stop();
 
 	cleanup();
 }
@@ -123,6 +133,9 @@ void Game::handleEvents()
 void Game::update()
 {
 	player->move();
+
+	for (auto& e : enemies)
+		e->move();
 }
 
 void Game::render()
@@ -131,6 +144,9 @@ void Game::render()
 	SDL_RenderClear(renderer);
 
 	player->render();
+
+	for (auto& e : enemies)
+		e->render();
 
 	/*for (auto* g : gameObjects)
 		g->render();*/
@@ -144,4 +160,29 @@ void Game::cleanup()
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
+}
+
+void Game::initEnemies(int rows, int columns, int winW, int winH, int vel)
+{
+	int xOffset = 0;
+	int yOffset = 0;
+
+	for (int i = 0; i < rows; ++i)
+	{
+		for (int j = 0; j < columns; ++j)
+		{
+			enemies.emplace_back(std::make_unique<Enemy>(renderer, 442, 51, winW, winH, Pawn::size, Pawn::size, vel, xOffset, yOffset));
+			xOffset += Enemy::enemyPosOffset;
+		}
+
+		xOffset = 0;
+		yOffset += Enemy::enemyPosOffset;
+	}
+	
+	for (auto& e : enemies)
+	{
+		e->setEnemies(enemies);
+		// e->setShooting();
+	}
+	
 }

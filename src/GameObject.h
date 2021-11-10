@@ -3,9 +3,15 @@
 #include <memory>
 #include <vector>
 #include <mutex>
+#include <random>
 
 #include "SDL.h"
 #include "SDL_image.h"
+
+static std::random_device rd;
+static std::mt19937 mt(rd());
+static std::uniform_int_distribution<> destructionDistr(-8, 8);
+static std::uniform_int_distribution<> shootingDelayDistr(1000, 3000);
 
 enum class Direction
 {
@@ -25,17 +31,13 @@ public:
 	virtual void render();
 	virtual void move() {}
 
-	SDL_Renderer* getRenderer() { return renderer; }
-	int getVelocity() { return velocity; }
-	void setVelocity(int vel) { velocity = vel; }
-	std::vector<int> getWindowSize() { return { windowWidth, windowHeight }; }
+	//std::vector<int> getWindowSize() { return { windowWidth, windowHeight }; }
 
 	SDL_Rect dstRect;
 
-private:
+protected:
 	SDL_Renderer* renderer;
-
-	int windowWidth, windowHeight;
 	int velocity;
+	int windowWidth, windowHeight;
 };
 

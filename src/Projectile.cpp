@@ -24,24 +24,22 @@ Projectile::Projectile(SDL_Rect ownerRect, Direction d, SDL_Renderer* r, int w, 
 
 void Projectile::render()
 {
-	std::random_device rd;
-	std::mt19937 mt(rd());
-	std::uniform_int_distribution<> distr(-8, 8);
+	
 
 	if (hasCollided == false)
 	{
-		SDL_SetRenderDrawColor(getRenderer(), 255, 255, 255, 255);
-		SDL_RenderFillRect(getRenderer(), &dstRect);
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		SDL_RenderFillRect(renderer, &dstRect);
 	}
 
 	else if (hasCollided == true)
 	{
-		SDL_SetRenderDrawColor(getRenderer(), 0, 0, 0, 0);
-		SDL_RenderFillRect(getRenderer(), &dstRect);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+		SDL_RenderFillRect(renderer, &dstRect);
 
 		for (int i = 0; i < 24; ++i)
 		{
-			SDL_RenderDrawPoint(getRenderer(), dstRect.x + distr(mt), dstRect.y + distr(mt));
+			SDL_RenderDrawPoint(renderer, dstRect.x + destructionDistr(mt), dstRect.y + destructionDistr(mt));
 		}
 	}
 }
@@ -49,10 +47,10 @@ void Projectile::render()
 void Projectile::move()
 {
 	if (direction == Direction::Down)
-		dstRect.y += getVelocity();
+		dstRect.y += velocity;
 
 	if (direction == Direction::Up)
-		dstRect.y -= getVelocity();
+		dstRect.y -= velocity;
 }
 
 // TODO: Projectiles hold their own pointers to GameObject vector; do collision checks on all of them
@@ -67,6 +65,6 @@ void Projectile::collision(GameObject* other)
 		otherRect.y + otherRect.h >= projectileRect.y)
 	{
 		hasCollided = true;
-		setVelocity(0);
+		velocity = 0;
 	}
 }

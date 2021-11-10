@@ -1,9 +1,11 @@
+#include <iostream>
+
 #include "Pawn.h"
 
-Pawn::Pawn(const char* textureFile, int srcX, int srcY, SDL_Renderer* r, int winW, int winH, int w, int h, int vel)
+Pawn::Pawn(SDL_Renderer* r, int srcX, int srcY, int winW, int winH, int w, int h, int vel)
 	: renderer(r), GameObject(r, winW, winH, w, h, vel)
 {
-	loadTexture(textureFile);
+	loadTexture("Assets/monochrome.png");
 
 	srcRect.x = srcX;
 	srcRect.y = srcY;
@@ -15,8 +17,11 @@ void Pawn::render()
 {
 	std::lock_guard<std::mutex> lck(mtx);
 	SDL_RenderCopy(renderer, texture, &srcRect, &dstRect);
-	for (int i = 0; i < projectiles.size(); ++i)
-		projectiles[i]->render();
+	for (auto& p : projectiles)
+	{
+		if (p != nullptr)
+			p->render();
+	}
 }
 
 void Pawn::loadTexture(const char* file)
@@ -30,12 +35,19 @@ void Pawn::loadTexture(const char* file)
 void Pawn::addProjectile(Direction dir)
 {
 	std::lock_guard<std::mutex> lck(mtx);
-	projectiles.emplace_back(std::make_unique<Projectile>(dstRect, dir, getRenderer(), 2, 2, 10));
+	projectiles.emplace_back(std::make_unique<Projectile>(dstRect, dir, renderer, 2, 2, 8));
 }
 
 void Pawn::moveProjectiles()
 {
 	std::lock_guard<std::mutex> lck(mtx);
-	for (int i = 0; i < projectiles.size(); ++i)
-		projectiles[i]->move();
+	for (auto& p : projectiles)
+	{
+		if (p != nullptr)
+		{
+			p->move(); 
+			if (p->dstRect.y <= 0 || p->dstRect.y > windowHeight)
+				p.reset();
+		}		
+	}	
 }

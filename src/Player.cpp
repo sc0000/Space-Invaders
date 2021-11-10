@@ -1,10 +1,10 @@
 #include <iostream>
+#include <cassert>
 
 #include "Player.h"
 
-Player::Player(const char* textureFile, int srcX, int srcY, MessageQueue<ShootingTrigger>* sT, 
-	SDL_Renderer* r, int winW, int winH, int w, int h, int vel)
-	: Pawn(textureFile, srcX, srcY, r, winW, winH, w, h, vel)
+Player::Player(SDL_Renderer* r, int srcX, int srcY, int winW, int winH, int w, int h, int vel, MessageQueue<ShootingTrigger>* sT)
+	: Pawn(r, srcX, srcY, winW, winH, w, h, vel)
 {
 	shootingTriggerQueue = sT;
 	dstRect.x = winW / 2 - 18 / 2;
@@ -17,15 +17,15 @@ void Player::move()
 	if (dstRect.x <= 0)
 		direction = Direction::Right;
 
-	if (dstRect.x + dstRect.w >= getWindowSize()[0])
+	if (dstRect.x + dstRect.w >= windowWidth)
 		direction = Direction::Left;
 
 	// move; direction is set via Controller class
 	if (direction == Direction::Left)
-		dstRect.x -= getVelocity();
+		dstRect.x -= velocity;
 
 	else if (direction == Direction::Right)
-		dstRect.x += getVelocity();
+		dstRect.x += velocity;
 
 	moveProjectiles();
 }
@@ -47,4 +47,10 @@ void Player::shoot()
 	}
 
 	std::cout << "Stopped thread: shoot()\n";
+}
+
+void Player::setDirection(Direction d)
+{
+	// assert(d == Direction::Right || d == Direction::Left);
+	direction = d; 
 }

@@ -11,16 +11,23 @@ class Pawn :
     public GameObject
 {
 public:
-    Pawn(const char* textureFile, int srcX, int srcY, SDL_Renderer* r, int winW, int winH, int w, int h, int vel);
+    Pawn(SDL_Renderer* r, int srcX, int srcY, int winW, int winH, int w, int h, int vel);
     
     virtual void render() override;
     void loadTexture(const char* file);
 
-    // void shoot();
+    virtual void shoot() {}
     void addProjectile(Direction dir);
     void moveProjectiles();
 
+    void stop() { isRunning = false; }
+
     SDL_Rect srcRect;
+
+    static const int size = 36;
+
+protected:
+    bool isRunning = true;
 
 private:
     SDL_Renderer* renderer;

@@ -33,8 +33,11 @@ void Controller::getInputs()
 			player->setDirection(Direction::Stop);
 
 		if (state[SDL_SCANCODE_SPACE])
+		{
 			shootingTriggerQueue->send(ShootingTrigger::Shoot);
-
+			// std::cout << "Triggered shot!\n";
+		}
+			
 		else
 			shootingTriggerQueue->send(ShootingTrigger::DontShoot);
 
