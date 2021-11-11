@@ -24,24 +24,12 @@ Projectile::Projectile(SDL_Rect ownerRect, Direction d, SDL_Renderer* r, int w, 
 
 void Projectile::render()
 {
-	
-
-	if (hasCollided == false)
-	{
+	if (!hasHit)
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_RenderFillRect(renderer, &dstRect);
-	}
-
-	else if (hasCollided == true)
-	{
+	else
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-		SDL_RenderFillRect(renderer, &dstRect);
 
-		for (int i = 0; i < 24; ++i)
-		{
-			SDL_RenderDrawPoint(renderer, dstRect.x + destructionDistr(mt), dstRect.y + destructionDistr(mt));
-		}
-	}
+	SDL_RenderFillRect(renderer, &dstRect);
 }
 
 void Projectile::move()
@@ -51,20 +39,4 @@ void Projectile::move()
 
 	if (direction == Direction::Up)
 		dstRect.y -= velocity;
-}
-
-// TODO: Projectiles hold their own pointers to GameObject vector; do collision checks on all of them
-void Projectile::collision(GameObject* other)
-{
-	SDL_Rect projectileRect = dstRect;
-	SDL_Rect otherRect = other->dstRect;
-
-	if (projectileRect.x + projectileRect.w >= otherRect.x &&
-		otherRect.x + otherRect.w >= projectileRect.x &&
-		projectileRect.y + projectileRect.h >= otherRect.y &&
-		otherRect.y + otherRect.h >= projectileRect.y)
-	{
-		hasCollided = true;
-		velocity = 0;
-	}
 }

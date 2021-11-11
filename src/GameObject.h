@@ -10,8 +10,8 @@
 
 static std::random_device rd;
 static std::mt19937 mt(rd());
-static std::uniform_int_distribution<> destructionDistr(-8, 8);
-static std::uniform_int_distribution<> shootingDelayDistr(1000, 3000);
+static std::uniform_int_distribution<> destructionDistr(-16, 16);
+static std::uniform_int_distribution<> shootingDelayDistr(1, 1000);
 
 enum class Direction
 {

@@ -1,7 +1,5 @@
 #pragma once
 
-// #include <random>
-
 #include "GameObject.h"
 
 class Projectile :
@@ -12,12 +10,15 @@ public:
 
     virtual void render() override;
     virtual void move() override;
-    void collision(GameObject* other);
+    void hit()
+    {
+        velocity = 0;
+        hasHit = true;
+    }
     
 private:
     Direction direction;
-
-    bool hasCollided = false;
+    bool hasHit = false;
 };
 
 typedef std::unique_ptr<Projectile> ProjectilePtr;

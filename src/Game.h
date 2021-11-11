@@ -24,7 +24,7 @@ private:
 	void render();
 	void cleanup();
 
-	void initEnemies(int rows, int columns, int winW, int winH, int vel);
+	void initEnemies(int rows, int columns, int winW, int winH, int vel, Player* player);
 
 	// void addGameObject(GameObject* gO) { gameObjects.emplace_back(gO); }
 
@@ -32,8 +32,9 @@ private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 
-	std::unique_ptr<MessageQueue<AudioTrigger>> audioTriggerQueue;
+	// std::unique_ptr<MessageQueue<AudioTrigger>> audioTriggerQueue;
 	std::unique_ptr<MessageQueue<ShootingTrigger>> shootingTriggerQueue;
+	
 
 	PlayerPtr player;
 
@@ -49,5 +50,7 @@ private:
 	std::vector<std::thread> threads;
 
 	bool isRunning = false;
+
+	std::mutex mtx;
 };
 

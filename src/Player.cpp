@@ -38,12 +38,18 @@ void Player::shoot()
 
 	while (isRunning)
 	{
+		shootingTrigger = ShootingTrigger::DontShoot;
 		shootingTrigger = shootingTriggerQueue->receive();
 
 		if (shootingTrigger == ShootingTrigger::Shoot)
+		{
 			addProjectile(Direction::Up);
-
+			
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		} 
+			
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		
 	}
 
 	std::cout << "Stopped thread: shoot()\n";

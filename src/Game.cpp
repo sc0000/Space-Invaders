@@ -20,6 +20,7 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 		if (renderer)
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // set to white
 		std::cout << "Renderer created!" << std::endl;
+		// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 		isRunning = true;
 
@@ -27,10 +28,11 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 		shootingTriggerQueue = std::make_unique<MessageQueue<ShootingTrigger>>();
 
 		// panel = std::make_unique<Panel>(renderer, "Assets/Sprites/Title.png", width, height, 512, 256);
-
 		player = std::make_unique<Player>(renderer, 510, 102, width, height, 36, 36, 8, shootingTriggerQueue.get());
 
-		initEnemies(4, 12, width, height, 1);
+		initEnemies(4, 12, width, height, 1, player.get());
+		
+		// player->setEnemies(enemies);
 
 		controller = std::make_unique<Controller>(player.get(), shootingTriggerQueue.get());
 
@@ -61,20 +63,41 @@ void Game::run()
 	threads.emplace_back(std::thread(&Controller::getInputs, std::ref(*controller)));
 	threads.emplace_back(std::thread(&Player::shoot, std::ref(*player)));
 
-	for (auto& e : enemies)
-	{
-		threads.emplace_back(std::thread(&Enemy::shoot, std::ref(*e)));
-		/*e->setEnemies(enemies);
-		e->setShooting();*/
-	}
+	//for (auto& e : enemies)
+	//{
+	//	e->startShootingThread();
+	//	// threads.emplace_back(std::thread(&Enemy::shoot, std::ref(*e)));
+	//}
 
 	while (isRunning)
 	{
 		Uint32 frameStart = SDL_GetTicks();
 
+		for (auto& e : enemies)
+			e->setEnemies(enemies);
+
 		handleEvents();
 		update();
 		render();
+
+		
+		for (size_t i = 0; i < enemies.size(); ++i)
+		{
+			if (enemies[i]->destroyed())
+			{
+				// enemies[i]->stop();
+				std::cout << enemies[i] << " has been destroyed\n";
+				auto local = std::move(enemies[i]);
+				enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[i]));
+				local.reset();
+
+				std::cout << "Nr of enemies: " << enemies.size() << std::endl;
+
+				for (auto& e : enemies)
+					e->setEnemies(enemies);
+			}
+		}
+		
 
 		// limiting framerate
 		frameTime = SDL_GetTicks() - frameStart;
@@ -135,7 +158,10 @@ void Game::update()
 	player->move();
 
 	for (auto& e : enemies)
-		e->move();
+	{
+		if (e != nullptr)
+			e->move();
+	}
 }
 
 void Game::render()
@@ -146,8 +172,11 @@ void Game::render()
 	player->render();
 
 	for (auto& e : enemies)
-		e->render();
-
+	{
+		if (e != nullptr)
+			e->render();
+	}
+		
 	/*for (auto* g : gameObjects)
 		g->render();*/
 
@@ -162,7 +191,7 @@ void Game::cleanup()
 	SDL_Quit();
 }
 
-void Game::initEnemies(int rows, int columns, int winW, int winH, int vel)
+void Game::initEnemies(int rows, int columns, int winW, int winH, int vel, Player* p)
 {
 	int xOffset = 0;
 	int yOffset = 0;
@@ -171,7 +200,7 @@ void Game::initEnemies(int rows, int columns, int winW, int winH, int vel)
 	{
 		for (int j = 0; j < columns; ++j)
 		{
-			enemies.emplace_back(std::make_unique<Enemy>(renderer, 442, 51, winW, winH, Pawn::size, Pawn::size, vel, xOffset, yOffset));
+			enemies.emplace_back(std::make_unique<Enemy>(renderer, 442, 51, winW, winH, Pawn::size, Pawn::size, vel, xOffset, yOffset, p));
 			xOffset += Enemy::enemyPosOffset;
 		}
 

@@ -23,6 +23,8 @@ public:
 		_queue.pop_front();
 		return t;
 	}
+
+	int size() { return _queue.size(); }
 	
 private:
 	std::deque<T> _queue;
@@ -30,20 +32,26 @@ private:
 	std::condition_variable _cond;
 };
 
-enum AudioTrigger
-{
-	LeftBorder,
-	MidBorder,
-	RightBorder,
-	HighPaddle,
-	MidPaddle,
-	LowPaddle,
-	Goal,
-	NoAudio
-};
+//enum AudioTrigger
+//{
+//	LeftBorder,
+//	MidBorder,
+//	RightBorder,
+//	HighPaddle,
+//	MidPaddle,
+//	LowPaddle,
+//	Goal,
+//	NoAudio
+//};
 
 enum class ShootingTrigger
 {
 	Shoot,
 	DontShoot
+};
+
+enum class HitTrigger
+{
+	Hit,
+	NoHit
 };
