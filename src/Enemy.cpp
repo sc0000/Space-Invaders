@@ -61,7 +61,6 @@ void Enemy::shoot()
 	while (isRunning)
 	{	
 		setShooting();
-		// isShooting = true;
 
 		tempTrigger = shootingDelayDistr(mt);
 
@@ -70,27 +69,7 @@ void Enemy::shoot()
 			addProjectile(Direction::Down);
 		}
 
-		//// std::lock_guard<std::mutex> lck(hitCounterMtx);
-		//auto temp = hitCounter;
-
-		//if (hitCounter > 0)
-		//	std::cout << this << ": hit counter: " << hitCounter << "\n";
-		
-		/*if (hitCounterQueue->size() > 0)
-		{
-			tempCounter = hitCounterQueue->receive();
-			std::cout << this << ": queue size: " << hitCounterQueue->size() << "\n";
-		}*/
-
-		/*if (hitCounter < 4)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-		}*/
-
-		else
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		
-		
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));		
 	}
 
 	// std::cout << this << " stopped thread: shoot()\n";

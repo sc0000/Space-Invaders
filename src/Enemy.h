@@ -38,7 +38,7 @@ public:
     {
         if (this != nullptr)
         {
-            if (hitCounter > 4)
+            if (hitCounter > 2)
             {
                 stop();
                 enemies.clear();

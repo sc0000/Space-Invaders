@@ -85,7 +85,7 @@ bool Pawn::checkCollision(Projectile* projectile)
 			dstRect.y + dstRect.h >= projectile->dstRect.y &&
 			projectile->dstRect.y + projectile->dstRect.h >= dstRect.y)
 		{
-			for (int i = 0; i < 128; ++i)
+			for (int i = 0; i < 512; ++i)
 			{
 				damages.emplace_back(projectile->dstRect.x + (destructionDistr(mt) / 2), projectile->dstRect.y - abs(destructionDistr(mt)));
 			}
@@ -94,7 +94,7 @@ bool Pawn::checkCollision(Projectile* projectile)
 			hitCounter += 1;
 			
 
-			if (hitCounter > 4)
+			if (hitCounter > 2)
 			{
 				std::cout << this << ": hit counter sent: " << hitCounter << std::endl;
 				hitCounterQueue->send(false);
