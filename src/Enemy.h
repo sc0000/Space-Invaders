@@ -8,7 +8,7 @@ class Enemy :
     public Pawn
 {
 public:
-    Enemy(SDL_Renderer* r, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int& xOffset, int& yOffset, Player* p);
+    Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int& xOffset, int& yOffset, Player* p);
     ~Enemy()
     {}
 
@@ -34,28 +34,8 @@ public:
 
     void setShooting();
 
-    bool destroyed()
-    {
-        if (this != nullptr)
-        {
-            if (hitCounter > 2)
-            {
-                stop();
-                enemies.clear();
-                damages.clear();
-                for (auto& p : projectiles)
-                {
-                    auto local = std::move(p);
-                    local.reset();
-                }
+    bool destroyed();
 
-                t.join();
-                return true;
-            }
-
-            return false;
-        }
-    }
 
     static const int enemyPosOffset = Pawn::size * 2;
 

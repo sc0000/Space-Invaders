@@ -10,11 +10,8 @@ public:
 
     virtual void render() override;
     virtual void move() override;
-    void hit()
-    {
-        velocity = 0;
-        hasHit = true;
-    }
+    
+    Direction getDirection() { return direction; }
     
 private:
     Direction direction;

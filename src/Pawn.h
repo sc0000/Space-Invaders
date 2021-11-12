@@ -14,7 +14,7 @@ class Pawn :
     public GameObject
 {
 public:
-    Pawn(SDL_Renderer* r, int srcX, int srcY, int winW, int winH, int w, int h, int vel);
+    Pawn(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel);
     ~Pawn()
     {}
     
@@ -37,8 +37,6 @@ public:
 
     void stop() { isRunning = false; }
 
-    SDL_Rect srcRect;
-
     static const int size = 36;
 
 protected:
@@ -46,11 +44,11 @@ protected:
     std::vector<std::pair<int, int>> damages;
     std::vector<std::unique_ptr<Projectile>> projectiles;
 
+    SDL_Rect srcRect;
+
     bool isRunning = true;
     bool hasBeenHit = false;
-    int hitCounter = 0;
-
-    std::unique_ptr<MessageQueue<int>> hitCounterQueue;
+    int hitPoints = 0;
 
     std::mutex mtx;
     std::mutex hitCounterMtx;

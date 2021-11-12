@@ -28,13 +28,17 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 		shootingTriggerQueue = std::make_unique<MessageQueue<ShootingTrigger>>();
 
 		// panel = std::make_unique<Panel>(renderer, "Assets/Sprites/Title.png", width, height, 512, 256);
-		player = std::make_unique<Player>(renderer, 510, 102, width, height, 36, 36, 8, shootingTriggerQueue.get());
 
-		initEnemies(4, 12, width, height, 1, player.get());
+		loadTexture("Assets/monochrome.png");
 		
-		// player->setEnemies(enemies);
+		counter = std::make_unique<Counter>(renderer, texture, width, height, 36, 36);
+		player = std::make_unique<Player>(renderer, texture, 510, 102, width, height, 36, 36, 8, shootingTriggerQueue.get(), counter.get());
+		initEnemies(3, 12, width, height, 1);
+		player->setEnemies(enemies);
 
 		controller = std::make_unique<Controller>(player.get(), shootingTriggerQueue.get());
+
+		
 
 		// audio = std::make_unique<Audio>(audioTriggerQueue.get());
 	}
@@ -81,22 +85,7 @@ void Game::run()
 		render();
 
 		
-		for (size_t i = 0; i < enemies.size(); ++i)
-		{
-			if (enemies[i]->destroyed())
-			{
-				// enemies[i]->stop();
-				std::cout << enemies[i] << " has been destroyed\n";
-				auto local = std::move(enemies[i]);
-				enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[i]));
-				local.reset();
-
-				std::cout << "Nr of enemies: " << enemies.size() << std::endl;
-
-				for (auto& e : enemies)
-					e->setEnemies(enemies);
-			}
-		}
+		
 		
 
 		// limiting framerate
@@ -156,12 +145,15 @@ void Game::handleEvents()
 void Game::update()
 {
 	player->move();
-
+	updateEnemies();
 	for (auto& e : enemies)
 	{
 		if (e != nullptr)
 			e->move();
 	}
+
+	if (counter->getCounter() <= 0)
+		isRunning = false;
 }
 
 void Game::render()
@@ -180,6 +172,8 @@ void Game::render()
 	/*for (auto* g : gameObjects)
 		g->render();*/
 
+	counter->render();
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -191,7 +185,14 @@ void Game::cleanup()
 	SDL_Quit();
 }
 
-void Game::initEnemies(int rows, int columns, int winW, int winH, int vel, Player* p)
+void Game::loadTexture(const char* file)
+{
+	SDL_Surface* tempSurface = IMG_Load(file);
+	texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+	SDL_FreeSurface(tempSurface);
+}
+
+void Game::initEnemies(int rows, int columns, int winW, int winH, int vel)
 {
 	int xOffset = 0;
 	int yOffset = 0;
@@ -200,7 +201,8 @@ void Game::initEnemies(int rows, int columns, int winW, int winH, int vel, Playe
 	{
 		for (int j = 0; j < columns; ++j)
 		{
-			enemies.emplace_back(std::make_unique<Enemy>(renderer, 442, 51, winW, winH, Pawn::size, Pawn::size, vel, xOffset, yOffset, p));
+			enemies.emplace_back(std::make_unique<Enemy>(renderer, texture, 442, 51, 
+				winW, winH, Pawn::size, Pawn::size, vel, xOffset, yOffset, player.get()));
 			xOffset += Enemy::enemyPosOffset;
 		}
 
@@ -211,7 +213,25 @@ void Game::initEnemies(int rows, int columns, int winW, int winH, int vel, Playe
 	for (auto& e : enemies)
 	{
 		e->setEnemies(enemies);
-		// e->setShooting();
 	}
-	
+}
+
+void Game::updateEnemies()
+{
+	for (size_t i = 0; i < enemies.size(); ++i)
+	{
+		if (enemies[i]->destroyed())
+		{
+			// enemies[i]->stop();
+			std::cout << enemies[i] << " has been destroyed\n";
+			auto local = std::move(enemies[i]);
+			enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[i]));
+			local.reset();
+
+			std::cout << "Nr of enemies: " << enemies.size() << std::endl;
+
+			for (auto& e : enemies)
+				e->setEnemies(enemies);
+		}
+	}
 }

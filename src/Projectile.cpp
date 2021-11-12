@@ -24,11 +24,7 @@ Projectile::Projectile(SDL_Rect ownerRect, Direction d, SDL_Renderer* r, int w, 
 
 void Projectile::render()
 {
-	if (!hasHit)
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	else
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderFillRect(renderer, &dstRect);
 }
 

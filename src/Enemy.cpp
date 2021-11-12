@@ -3,9 +3,11 @@
 
 #include "Enemy.h"
 
-Enemy::Enemy(SDL_Renderer* r, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int& xOffset, int& yOffset, Player* p)
-	: Pawn(r, srcX, srcY, winW, winH, w, h, vel), player(p)
+Enemy::Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int& xOffset, int& yOffset, Player* p)
+	: Pawn(r, t, srcX, srcY, winW, winH, w, h, vel), player(p)
 {
+	hitPoints = 2;
+
 	dstRect.x = defaultX + xOffset;
 	dstRect.y = defaultY + yOffset;
 
@@ -16,16 +18,14 @@ void Enemy::move()
 {
 	if (this != nullptr)
 	{
-		// std::cout << this << " " << isRunning << std::endl;
+		// move on x axis
 		dstRect.x += velocity;
 		for (auto& d : damages)
 		{
 			d.first += velocity;
-			/*d.second += velocity;*/
 		}
 
-		moveProjectiles();
-
+		// if window border is reached, flip down
 		if (dstRect.x >= windowWidth - Pawn::size || dstRect.x <= Pawn::size)
 		{
 			dstRect.y += Pawn::size;
@@ -35,6 +35,8 @@ void Enemy::move()
 			velocity *= -1;
 		}
 
+		moveProjectiles();
+
 		for (auto& p : player->getProjectiles())
 		{
 			if (p != nullptr)
@@ -43,7 +45,7 @@ void Enemy::move()
 				{
 					auto local = std::move(p);
 					local.reset();
-					/*player->projectiles.erase(std::remove(player->projectiles.begin(), player->projectiles.end(), p));*/
+					player->getProjectiles().erase(std::remove(player->getProjectiles().begin(), player->getProjectiles().end(), p));
 				}
 			}
 		}
@@ -53,8 +55,6 @@ void Enemy::move()
 void Enemy::shoot()
 {
 	// std::cout << this << " started thread: shoot()\n";
-
-	int tempCounter = 0;
 
 	int tempTrigger = 0;
 
@@ -87,5 +87,28 @@ void Enemy::setShooting()
 				isShooting = false;
 			}
 		}
+	}
+}
+
+bool Enemy::destroyed()
+{
+	if (this != nullptr)
+	{
+		if (hitPoints == 0)
+		{
+			stop();
+			enemies.clear();
+			damages.clear();
+			for (auto& p : projectiles)
+			{
+				auto local = std::move(p);
+				local.reset();
+			}
+
+			t.join();
+			return true;
+		}
+
+		return false;
 	}
 }

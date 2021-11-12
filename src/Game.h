@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Controller.h"
+#include "Counter.h"
 
 class Game
 {
@@ -23,14 +24,17 @@ private:
 	void update();
 	void render();
 	void cleanup();
-
-	void initEnemies(int rows, int columns, int winW, int winH, int vel, Player* player);
+	
+	void loadTexture(const char* file);
+	void initEnemies(int rows, int columns, int winW, int winH, int vel);
+	void updateEnemies();
 
 	// void addGameObject(GameObject* gO) { gameObjects.emplace_back(gO); }
 
 private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
+	SDL_Texture* texture;
 
 	// std::unique_ptr<MessageQueue<AudioTrigger>> audioTriggerQueue;
 	std::unique_ptr<MessageQueue<ShootingTrigger>> shootingTriggerQueue;
@@ -43,6 +47,8 @@ private:
 	ControllerPtr controller;
 
 	// AudioPtr audio;
+
+	CounterPtr counter;
 
 	// std::vector<GameObject*> gameObjects;
 	std::vector<EnemyPtr> enemies;
