@@ -9,6 +9,7 @@
 #include "MessageQueue.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Shield.h"
 #include "Controller.h"
 #include "Counter.h"
 
@@ -27,7 +28,9 @@ private:
 	
 	void loadTexture(const char* file);
 	void initEnemies(int rows, int columns, int winW, int winH, int vel);
+	void initShields(int number, int winW, int winH);
 	void updateEnemies();
+	void updateShields();
 
 	// void addGameObject(GameObject* gO) { gameObjects.emplace_back(gO); }
 
@@ -44,14 +47,15 @@ private:
 
 	// PanelPtr panel;
 
-	ControllerPtr controller;
-
 	// AudioPtr audio;
 
 	CounterPtr counter;
 
 	// std::vector<GameObject*> gameObjects;
 	std::vector<EnemyPtr> enemies;
+	std::vector<ShieldPtr> shields;
+	ControllerPtr controller;
+
 
 	std::vector<std::thread> threads;
 

@@ -14,7 +14,7 @@ class Pawn :
     public GameObject
 {
 public:
-    Pawn(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel);
+    Pawn(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel=0);
     ~Pawn()
     {}
     
@@ -34,6 +34,8 @@ public:
     std::vector<std::unique_ptr<Projectile>>& getProjectiles() { return projectiles; }
 
     bool checkCollision(Projectile* projectile);
+    void setHitPoints(int hP) { hitPoints = hP; }
+    virtual bool destroyed() { return false; }
 
     void stop() { isRunning = false; }
 
@@ -59,3 +61,4 @@ private:
     SDL_Texture* damageTexture = nullptr;
 };
 
+typedef std::unique_ptr<Pawn> PawnPtr;

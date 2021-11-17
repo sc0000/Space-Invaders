@@ -22,12 +22,6 @@ Projectile::Projectile(SDL_Rect ownerRect, Direction d, SDL_Renderer* r, int w, 
 	dstRect.h = 2;*/
 }
 
-void Projectile::render()
-{
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderFillRect(renderer, &dstRect);
-}
-
 void Projectile::move()
 {
 	if (direction == Direction::Down)

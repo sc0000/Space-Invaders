@@ -9,8 +9,6 @@ class Enemy;
 class Player
 	: public Pawn
 {
-	// friend class Enemy;
-
 public:
 	Player(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, 
 		int winW, int winH, int w, int h, int vel, 

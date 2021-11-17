@@ -8,7 +8,6 @@ class Projectile :
 public:
     Projectile(SDL_Rect ownerRect, Direction d, SDL_Renderer* r, int w, int h, int vel=12);
 
-    virtual void render() override;
     virtual void move() override;
     
     Direction getDirection() { return direction; }

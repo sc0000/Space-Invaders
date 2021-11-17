@@ -20,10 +20,10 @@ public:
         t = std::thread(&Enemy::shoot, std::ref(*this));
     }
 
-    /*void endShootingThread()
+    void joinShootingThread()
     {
         t.join();
-    }*/
+    }
 
     void setEnemies(std::vector<std::unique_ptr<Enemy>>& enem) 
     {
@@ -34,7 +34,7 @@ public:
 
     void setShooting();
 
-    bool destroyed();
+    virtual bool destroyed() override;
 
 
     static const int enemyPosOffset = Pawn::size * 2;

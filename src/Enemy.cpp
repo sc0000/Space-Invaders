@@ -25,7 +25,7 @@ void Enemy::move()
 			d.first += velocity;
 		}
 
-		// if window border is reached, flip down
+		// if window border is reached, flip down and revert direction
 		if (dstRect.x >= windowWidth - Pawn::size || dstRect.x <= Pawn::size)
 		{
 			dstRect.y += Pawn::size;

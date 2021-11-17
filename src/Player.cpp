@@ -89,6 +89,7 @@ void Player::shoot()
 
 void Player::setDirection(Direction d)
 {
-	// assert(d == Direction::Right || d == Direction::Left);
+	assert(d != Direction::Up);
+	assert(d != Direction::Down);
 	direction = d; 
 }

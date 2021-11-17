@@ -36,6 +36,10 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 		initEnemies(3, 12, width, height, 1);
 		player->setEnemies(enemies);
 
+		initShields(12, width, height);
+		for (auto& s : shields)
+			s->setEnemies(enemies);
+
 		controller = std::make_unique<Controller>(player.get(), shootingTriggerQueue.get());
 
 		
@@ -84,10 +88,6 @@ void Game::run()
 		update();
 		render();
 
-		
-		
-		
-
 		// limiting framerate
 		frameTime = SDL_GetTicks() - frameStart;
 		if (frameDelay > frameTime)
@@ -110,13 +110,18 @@ void Game::run()
 		//	std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 		//}
 	}
+	
+	controller->stop();
+	player->stop();
+
+	for (auto& e : enemies)
+	{
+		e->stop();
+		e->joinShootingThread();
+	}
 
 	for (auto& t : threads)
 		t.join();
-
-	player->stop();
-	for (auto& e : enemies)
-		e->stop();
 
 	cleanup();
 }
@@ -129,16 +134,10 @@ void Game::handleEvents()
 	{
 	case SDL_QUIT: // when the "X" button is pressed
 		isRunning = false;
-		/*audio->stop();
-		controller->stop();*/
-		
-
-		// cleanup();
 		break;
 
 	default:
 		break;
-
 	}
 }
 
@@ -150,6 +149,13 @@ void Game::update()
 	{
 		if (e != nullptr)
 			e->move();
+	}
+
+	updateShields();
+	for (auto& s : shields)
+	{
+		if (s != nullptr)
+			s->update();
 	}
 
 	if (counter->getCounter() <= 0)
@@ -168,9 +174,12 @@ void Game::render()
 		if (e != nullptr)
 			e->render();
 	}
-		
-	/*for (auto* g : gameObjects)
-		g->render();*/
+
+	for (auto& s : shields)
+	{
+		if (s != nullptr)
+			s->render();
+	}
 
 	counter->render();
 
@@ -232,6 +241,33 @@ void Game::updateEnemies()
 
 			for (auto& e : enemies)
 				e->setEnemies(enemies);
+		}
+	}
+}
+
+void Game::initShields(int number, int winW, int winH)
+{
+	for (int i = 0; i < number; ++i)
+	{
+		shields.emplace_back(std::make_unique<Shield>(renderer, texture, 152, 203, winW, winH, 36, 36, player.get()));
+		shields[i]->dstRect.x = winW / (number + 1) * (i + 1);
+		shields[i]->dstRect.y = (winH - winH / 12) - Pawn::size * 2.4;
+	}
+}
+
+void Game::updateShields()
+{
+	for (size_t i = 0; i < shields.size(); ++i)
+	{
+		if (shields[i]->destroyed())
+		{
+			// shields[i]->stop();
+			std::cout << shields[i] << " has been destroyed\n";
+			auto local = std::move(shields[i]);
+			shields.erase(std::remove(shields.begin(), shields.end(), shields[i]));
+			local.reset();
+
+			std::cout << "Nr of shields: " << shields.size() << std::endl;
 		}
 	}
 }
