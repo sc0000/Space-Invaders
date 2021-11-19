@@ -19,7 +19,7 @@ public:
     {}
     
     virtual void render() override;
-    void loadTexture(const char* file);
+    void renderDefeat();
 
     void setEnemies(std::vector<std::unique_ptr<Enemy>>& enem)
     {
@@ -48,6 +48,9 @@ protected:
 
     SDL_Rect srcRect;
 
+    SDL_Renderer* renderer;
+    SDL_Texture* texture = nullptr;
+
     bool isRunning = true;
     bool hasBeenHit = false;
     int hitPoints = 0;
@@ -56,8 +59,6 @@ protected:
     std::mutex hitCounterMtx;
 
 private:
-    SDL_Renderer* renderer;
-    SDL_Texture* texture = nullptr;
     SDL_Texture* damageTexture = nullptr;
 };
 

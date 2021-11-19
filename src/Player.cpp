@@ -76,7 +76,7 @@ void Player::shoot()
 
 		if (shootingTrigger == ShootingTrigger::Shoot)
 		{
-			if (projectiles.size() > 1)
+			if (projectiles.size() > 4)
 				projectiles.clear();
 			addProjectile(Direction::Up);
 		}

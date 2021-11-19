@@ -8,7 +8,7 @@ class Enemy :
     public Pawn
 {
 public:
-    Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int& xOffset, int& yOffset, Player* p);
+    Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int xOffset, int yOffset, Player* p);
     ~Enemy()
     {}
 
@@ -40,8 +40,8 @@ public:
     static const int enemyPosOffset = Pawn::size * 2;
 
 private:
-    static const int defaultX = 4;
-    static const int defaultY = 4;
+    static const int defaultX = 8;
+    static const int defaultY = 8;
 
     std::vector<Enemy*> enemies;
     Player* player;

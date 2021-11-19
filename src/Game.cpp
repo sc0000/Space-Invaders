@@ -29,11 +29,14 @@ Game::Game(const char* title, int xPos, int yPos, int width, int height, bool fu
 
 		// panel = std::make_unique<Panel>(renderer, "Assets/Sprites/Title.png", width, height, 512, 256);
 
-		loadTexture("Assets/monochrome.png");
+		spriteTexture = loadTexture("Assets/Sprites/monochrome.png");
+		panelTexture = loadTexture("Assets/Sprites/title.png");
 		
-		counter = std::make_unique<Counter>(renderer, texture, width, height, 36, 36);
-		player = std::make_unique<Player>(renderer, texture, 510, 102, width, height, 36, 36, 8, shootingTriggerQueue.get(), counter.get());
-		initEnemies(3, 12, width, height, 1);
+		panel = std::make_unique<Panel>(renderer, panelTexture, width, height, 512, 256);
+		counter = std::make_unique<Counter>(renderer, spriteTexture, width, height, 36, 36);
+		player = std::make_unique<Player>(renderer, spriteTexture, 510, 102, width, height, 36, 36, 8, 
+			shootingTriggerQueue.get(), counter.get());
+		initEnemies(4, 12, width, height, 1);
 		player->setEnemies(enemies);
 
 		initShields(12, width, height);
@@ -61,9 +64,10 @@ void Game::run()
 
 	//threads.emplace_back(std::thread(&Audio::run, std::ref(*audio)));
 
-	//SDL_RenderClear(renderer);
-	//panel->render();
-	//SDL_RenderPresent(renderer);
+	SDL_RenderClear(renderer);
+	panel->render();
+	SDL_RenderPresent(renderer);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	//
 	//audio->playSound("Assets/Audio/Panel.wav", 2000);
 
@@ -77,7 +81,7 @@ void Game::run()
 	//	// threads.emplace_back(std::thread(&Enemy::shoot, std::ref(*e)));
 	//}
 
-	while (isRunning)
+	while (outcome != Outcome::Victory && outcome != Outcome::Defeat)
 	{
 		Uint32 frameStart = SDL_GetTicks();
 
@@ -92,6 +96,7 @@ void Game::run()
 		frameTime = SDL_GetTicks() - frameStart;
 		if (frameDelay > frameTime)
 			SDL_Delay(frameDelay - frameTime);
+
 
 		//if (!isRunning /*end game condition*/)
 		//{
@@ -110,7 +115,7 @@ void Game::run()
 		//	std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 		//}
 	}
-	
+
 	controller->stop();
 	player->stop();
 
@@ -122,6 +127,25 @@ void Game::run()
 
 	for (auto& t : threads)
 		t.join();
+
+	if (outcome == Outcome::Defeat)
+	{
+		player->renderDefeat();
+		SDL_RenderClear(renderer);
+		panel->setTexture(loadTexture("Assets/Sprites/defeat.png"));
+		panel->render();
+		SDL_RenderPresent(renderer);
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+
+	if (outcome == Outcome::Victory)
+	{
+		SDL_RenderClear(renderer);
+		panel->setTexture(loadTexture("Assets/Sprites/victory.png"));
+		panel->render();
+		SDL_RenderPresent(renderer);
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
 
 	cleanup();
 }
@@ -159,14 +183,14 @@ void Game::update()
 	}
 
 	if (counter->getCounter() <= 0)
-		isRunning = false;
+		outcome = Outcome::Defeat;
 }
 
 void Game::render()
 {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	
 	player->render();
 
 	for (auto& e : enemies)
@@ -194,11 +218,13 @@ void Game::cleanup()
 	SDL_Quit();
 }
 
-void Game::loadTexture(const char* file)
+SDL_Texture* Game::loadTexture(const char* file)
 {
 	SDL_Surface* tempSurface = IMG_Load(file);
-	texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+	SDL_Texture* temp = SDL_CreateTextureFromSurface(renderer, tempSurface);
 	SDL_FreeSurface(tempSurface);
+
+	return temp;
 }
 
 void Game::initEnemies(int rows, int columns, int winW, int winH, int vel)
@@ -210,19 +236,19 @@ void Game::initEnemies(int rows, int columns, int winW, int winH, int vel)
 	{
 		for (int j = 0; j < columns; ++j)
 		{
-			enemies.emplace_back(std::make_unique<Enemy>(renderer, texture, 442, 51, 
+			enemies.emplace_back(std::make_unique<Enemy>(renderer, spriteTexture, 442, 51,
 				winW, winH, Pawn::size, Pawn::size, vel, xOffset, yOffset, player.get()));
 			xOffset += Enemy::enemyPosOffset;
 		}
 
 		xOffset = 0;
-		yOffset += Enemy::enemyPosOffset;
+		yOffset += Enemy::enemyPosOffset;;
 	}
 	
 	for (auto& e : enemies)
-	{
 		e->setEnemies(enemies);
-	}
+
+	std::cout << "Number of enemies: " << enemies.size() << std::endl;
 }
 
 void Game::updateEnemies()
@@ -233,6 +259,12 @@ void Game::updateEnemies()
 		{
 			// enemies[i]->stop();
 			std::cout << enemies[i] << " has been destroyed\n";
+			if (enemies.size() == 1 && i == 0)
+			{
+				enemies[0]->renderDefeat();
+				outcome = Outcome::Victory;
+			}
+
 			auto local = std::move(enemies[i]);
 			enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[i]));
 			local.reset();
@@ -245,11 +277,18 @@ void Game::updateEnemies()
 	}
 }
 
+	/*else if (enemies.size() == 1 && enemies[0]->destroyed())
+	{
+			enemies[0]->renderDefeat();
+			outcome = Outcome::Victory;
+	}*/
+
+
 void Game::initShields(int number, int winW, int winH)
 {
 	for (int i = 0; i < number; ++i)
 	{
-		shields.emplace_back(std::make_unique<Shield>(renderer, texture, 152, 203, winW, winH, 36, 36, player.get()));
+		shields.emplace_back(std::make_unique<Shield>(renderer, spriteTexture, 152, 203, winW, winH, 36, 36, player.get()));
 		shields[i]->dstRect.x = winW / (number + 1) * (i + 1);
 		shields[i]->dstRect.y = (winH - winH / 12) - Pawn::size * 2.4;
 	}

@@ -6,8 +6,6 @@ Pawn::Pawn(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int wi
 	: renderer(r), texture(t), GameObject(r, winW, winH, w, h, vel)
 {
 	SDL_Texture* damageTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
-	// SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-	// SDL_SetTextureBlendMode(damageTexture, SDL_BLENDMODE_BLEND);
 
 	srcRect.x = srcX;
 	srcRect.y = srcY;
@@ -19,8 +17,6 @@ void Pawn::render()
 {
 	if (this != nullptr)
 	{
-		std::lock_guard<std::mutex> lck(mtx);
-
 		SDL_RenderCopy(renderer, texture, &srcRect, &dstRect);
 
 		SDL_SetRenderTarget(renderer, damageTexture);
@@ -38,12 +34,30 @@ void Pawn::render()
 	}
 }
 
-void Pawn::loadTexture(const char* file)
+void Pawn::renderDefeat()
 {
-	// std::lock_guard<std::mutex> lck(mtx);
-	SDL_Surface* tempSurface = IMG_Load(file);
-	texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
-	SDL_FreeSurface(tempSurface);
+	if (this != nullptr)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			SDL_RenderClear(renderer);
+
+			SDL_RenderCopy(renderer, texture, &srcRect, &dstRect);
+			for (auto& d : damages)
+			{
+				SDL_RenderDrawPoint(renderer, d.first, d.second);
+			}
+			SDL_RenderPresent(renderer);
+			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+			SDL_RenderClear(renderer);
+
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+			SDL_RenderFillRect(renderer, &dstRect);
+			SDL_RenderPresent(renderer);
+			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+		}
+	}
 }
 
 void Pawn::addProjectile(Direction dir)
@@ -58,7 +72,7 @@ void Pawn::moveProjectiles()
 	std::lock_guard<std::mutex> lck(mtx);
 	for (auto& p : projectiles)
 	{
-		if (p != nullptr)
+		if (p != nullptr && projectiles.size() != 0)
 		{
 			p->move(); 
 			if (p->dstRect.y <= 0 || p->dstRect.y > windowHeight)

@@ -3,13 +3,15 @@
 
 #include "Enemy.h"
 
-Enemy::Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int& xOffset, int& yOffset, Player* p)
+Enemy::Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int xOffset, int yOffset, Player* p)
 	: Pawn(r, t, srcX, srcY, winW, winH, w, h, vel), player(p)
 {
 	hitPoints = 2;
 
-	dstRect.x = defaultX + xOffset;
-	dstRect.y = defaultY + yOffset;
+	dstRect.x = Pawn::size * 1.2 + xOffset;
+	dstRect.y = Pawn::size * 1.2 + yOffset;
+
+	std::cout << "Init enemy x, y " << dstRect.x << ", " << dstRect.y << std::endl;
 
 	startShootingThread();
 }
