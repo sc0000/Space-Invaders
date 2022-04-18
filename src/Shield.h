@@ -17,4 +17,4 @@ private:
     Player* player;
 };
 
-typedef std::unique_ptr<Shield>ShieldPtr;
+typedef std::unique_ptr<Shield> ShieldPtr;

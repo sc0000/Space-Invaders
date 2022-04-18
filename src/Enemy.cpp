@@ -3,7 +3,8 @@
 
 #include "Enemy.h"
 
-Enemy::Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, int winW, int winH, int w, int h, int vel, int xOffset, int yOffset, Player* p)
+Enemy::Enemy(SDL_Renderer* r, SDL_Texture* t, int srcX, int srcY, 
+	int winW, int winH, int w, int h, int vel, int xOffset, int yOffset, Player* p)
 	: Pawn(r, t, srcX, srcY, winW, winH, w, h, vel), player(p)
 {
 	hitPoints = 2;
@@ -67,9 +68,7 @@ void Enemy::shoot()
 		tempTrigger = shootingDelayDistr(mt);
 
 		if (tempTrigger == 1 && isShooting)
-		{
 			addProjectile(Direction::Down);
-		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));		
 	}
@@ -85,9 +84,7 @@ void Enemy::setShooting()
 		if (e != nullptr)
 		{
 			if (dstRect.x == e->dstRect.x && dstRect.y < e->dstRect.y)
-			{
 				isShooting = false;
-			}
 		}
 	}
 }
